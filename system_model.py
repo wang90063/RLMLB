@@ -52,12 +52,12 @@ class SystemModel:
     @staticmethod
     def init_users():
         """
-            initialize user. every user consists of 4 params:
-            (1) loc_x(center) (2) loc_y(center) (3) which cell user is in (4) user mobility type
-            user mobility type is divided into 3 categories: low, medium and high. Low mobility users takes 70% of all,
-            while medium and high takes 20% and 10%.
-            :return: user: (1) loc_x(center) (2) loc_y(center) (3) which cell user is in (4) user mobility type
-            """
+        initialize user. every user consists of 4 params:
+        (1) loc_x(center) (2) loc_y(center) (3) which cell user is in (4) user mobility type
+        user mobility type is divided into 3 categories: low, medium and high. Low mobility users takes 70% of all,
+        while medium and high takes 20% and 10%.
+        :return: user: (1) loc_x(center) (2) loc_y(center) (3) which cell user is in (4) user mobility type
+         """
         user_x = np.random.randint(LEFT_MARGIN, RIGHT_MARGIN, size=NUM_USER)
         user_y = np.random.randint(TOP_MARGIN, BOTTOM_MARGIN, size=NUM_USER)
         cell_id = which_cell(loc_x=user_x, loc_y=user_y)
