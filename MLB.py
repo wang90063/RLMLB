@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 import math
+import numpy as np
 from pygame.locals import *
 from colour import Color
 
@@ -11,13 +12,14 @@ WINDOW_WIDTH = 1000  # size of window's width in pixels
 WINDOW_HEIGHT = 600  # size of windows' height in pixels
 CELL_SIZE = 200  # size of cell height & width in pixels
 GAP_SIZE = 1  # size of gap between cells in pixels
-CELL_COLUMN = 3  # number of columns of cells
-CELL_ROW = 2  # number of rows of cells
+CELL_COLUMN = 2  # number of columns of cells
+CELL_ROW = 1  # number of rows of cells
+NUM_CELL = CELL_COLUMN * CELL_ROW  # num of cells
 LEFT_MARGIN = int((WINDOW_WIDTH - (CELL_COLUMN * (CELL_SIZE + GAP_SIZE))) / 2)
 RIGHT_MARGIN = int(WINDOW_WIDTH - LEFT_MARGIN)
 TOP_MARGIN = int((WINDOW_HEIGHT - (CELL_ROW * (CELL_SIZE + GAP_SIZE))) / 2)
 BOTTOM_MARGIN = int(WINDOW_HEIGHT - TOP_MARGIN)
-NUM_USER = 30
+NUM_USER = 20
 white = Color("white")
 COLOR_LIST = list(white.range_to(Color("black"), 15))
 RESOURCE_LIST = [10, 8, 6, 10, 8, 6, 6, 10, 7, 10, 5, 7, 4, 8, 9, 5, 6, 5, 9]
@@ -54,12 +56,12 @@ def init_users():
         user.append(which_cell(user[0], user[1]))  # denote user is in which cell
         # user mobility type
         random_num = random.randint(0, 10)
-        if random_num <= 7:  # low(70%): 0-1 per sec
+        if random_num <= 5:  # low(70%): 0-1 per sec
             user.append(1)
-        elif random_num <= 9:  # medium(20%): 0-5 per sec
-            user.append(5)
+        elif random_num <= 7:  # medium(20%): 0-5 per sec
+            user.append(10)
         else:
-            user.append(10)  # high(10%): 0-20 per sec
+            user.append(20)  # high(10%): 0-20 per sec
         user_list.append(user)
     return user_list
 
@@ -162,12 +164,43 @@ def cal_cell_load(cell_list, user_list):
     cell_load = [0] * CELL_COLUMN * CELL_ROW
     for user in user_list:
         cell_load[user[2] - 1] += 1
-    print(cell_load)
+    # print(cell_load)
 
     # update the load of each cell in cell list
     for i in range(len(cell_list)):
         cell_list[i][4] = cell_load[i]
     return cell_list
+
+
+def cal_reward(cell_list):
+    reward = 0
+    for i in range(NUM_CELL):
+        resource = cell_list[i][3]
+        load = cell_list[i][4]
+        if resource < load:
+            reward -= 1
+    return reward
+
+
+def frame_step(input_action, cell_list, user_list):
+    # update PRB according to actions
+    for i in range(NUM_CELL):
+        # take the PRB from cell j to i
+        cell_to_take = input_action[i]
+        cell_list[i][3] += 1
+        cell_list[cell_to_take][3] -= 1
+    print(cell_list)
+
+    # update system states
+    user_list = user_mobility(user_list)
+    cell_list = cal_cell_load(cell_list, user_list)
+    reward = cal_reward(cell_list)
+
+    # draw frame
+    DISPLAY_SURF.fill(BG_COLOR)
+    draw_cells(cell_list)
+    draw_users(user_list)
+    return reward
 
 
 def main():
@@ -179,11 +212,18 @@ def main():
     user_list = init_users()
     cell_list = init_cells()
     while True:
-        DISPLAY_SURF.fill(BG_COLOR)
-        user_list = user_mobility(user_list)
-        cell_list = cal_cell_load(cell_list, user_list)
-        draw_cells(cell_list)
-        draw_users(user_list)
+        # DISPLAY_SURF.fill(BG_COLOR)
+        # user_list = user_mobility(user_list)
+        # cell_list = cal_cell_load(cell_list, user_list)
+        # reward = cal_reward(cell_list)
+        # draw_cells(cell_list)
+        # draw_users(user_list)
+        items = range(2)
+        random_action = random.sample(items, len(items))
+        # random_action = [0,0,0,0,0,0]
+        print(random_action)
+        reward = frame_step(random_action, cell_list, user_list)
+        print(reward)
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 pygame.quit()
