@@ -5,6 +5,8 @@ import math
 import numpy as np
 from pygame.locals import *
 from colour import Color
+from collections import Counter
+
 
 # frame params
 FPS = 3  # frames per second, the general speed of the program
@@ -113,23 +115,16 @@ class SystemModel:
         user_y = self.users[:, 1] + move_y  # update loc according to user mobility type
         self.users[:, 1] = np.clip(user_y, TOP_MARGIN + 4, BOTTOM_MARGIN - 4)  # restrict user loc in the cell range
 
-    def update_load(self, cell_list, user_list):
+    def update_load(self):
         """
         calculate cell load according to the sum of users in its range.
-        :param cell_list:
-        :param user_list:
-        :return:
         """
         # count users in each cell
-        cell_load = [0] * CELL_COLUMN * CELL_ROW
-        for user in user_list:
-            cell_load[user[2] - 1] += 1
-        # print(cell_load)
-
+        user_in = self.users[:, 2] - 1
+        user_count = Counter(user_in).most_common()
         # update the load of each cell in cell list
-        for i in range(len(cell_list)):
-            cell_list[i][4] = cell_load[i]
-        return cell_list
+        for item in user_count:
+            self.cells[item[0]][4] = item[1]
 
     def frame_step(self, input_action, cell_list, user_list):
         # update PRB according to actions
@@ -142,7 +137,7 @@ class SystemModel:
 
         # update system states
         self.move_user()
-        cell_list = cal_cell_load(cell_list, user_list)
+        self.update_load()
         reward = cal_reward(cell_list)
 
         # draw frame
