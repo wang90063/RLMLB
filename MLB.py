@@ -13,7 +13,7 @@ WINDOW_HEIGHT = 600  # size of windows' height in pixels
 CELL_SIZE = 200  # size of cell height & width in pixels
 GAP_SIZE = 1  # size of gap between cells in pixels
 CELL_COLUMN = 2  # number of columns of cells
-CELL_ROW = 1  # number of rows of cells
+CELL_ROW = 3  # number of rows of cells
 NUM_CELL = CELL_COLUMN * CELL_ROW  # num of cells
 LEFT_MARGIN = int((WINDOW_WIDTH - (CELL_COLUMN * (CELL_SIZE + GAP_SIZE))) / 2)
 RIGHT_MARGIN = int(WINDOW_WIDTH - LEFT_MARGIN)
@@ -59,9 +59,9 @@ def init_users():
         if random_num <= 5:  # low(70%): 0-1 per sec
             user.append(1)
         elif random_num <= 7:  # medium(20%): 0-5 per sec
-            user.append(10)
+            user.append(1)
         else:
-            user.append(20)  # high(10%): 0-20 per sec
+            user.append(1)  # high(10%): 0-20 per sec
         user_list.append(user)
     return user_list
 
@@ -95,6 +95,9 @@ def user_mobility(user_list):
     new_user_list = list()
     for user in user_list:
         #  update loc according to user mobility type
+        ii = random.randint(-user[3], user[3])
+        print("user[3]= ", user[3])
+        print("ii= ", ii)
         user[0] += random.randint(-user[3], user[3])
         user[1] += random.randint(-user[3], user[3])
         #  restrict user loc in the cell range
@@ -218,7 +221,7 @@ def main():
         # reward = cal_reward(cell_list)
         # draw_cells(cell_list)
         # draw_users(user_list)
-        items = range(2)
+        items = range(6)
         random_action = random.sample(items, len(items))
         # random_action = [0,0,0,0,0,0]
         print(random_action)
