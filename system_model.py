@@ -214,15 +214,6 @@ def cal_cell_load(cell_list, user_list):
     return cell_list
 
 
-def cal_reward(cell_list):
-    reward = 0
-    for i in range(NUM_CELL):
-        resource = cell_list[i][3]
-        load = cell_list[i][4]
-        if resource < load:
-            reward -= 1
-    return reward
-
 
 
 
